@@ -3,62 +3,130 @@ import { motion } from 'framer-motion';
 import { Activity, ChevronRight, CheckCircle, AlertCircle, X } from 'lucide-react';
 
 interface AnalysisResults {
-  condition: string;
-  confidence: number;
-  description: string;
-  recommendations: string[];
+  predicted_disease: string;
 }
 
 const SymptomsAnalysis: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [filteredSymptoms, setFilteredSymptoms] = useState<string[]>([]);
   const [duration, setDuration] = useState<string>('');
   const [severity, setSeverity] = useState<string>('');
   const [analysisResults, setAnalysisResults] = useState<AnalysisResults | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const commonSymptoms = [
-    'Headache', 'Fever', 'Cough', 'Fatigue', 'Sore Throat',
-    'Shortness of Breath', 'Muscle Pain', 'Loss of Taste or Smell',
-    'Nausea', 'Diarrhea', 'Chest Pain', 'Runny Nose', 'Dizziness',
-    'Abdominal Pain', 'Rash', 'Joint Pain', 'Chills', 'Vomiting'
+    'anxiety and nervousness',
+    'depression',
+    'shortness of breath',
+    'chest tightness',
+    'palpitations',
+    'sore throat',
+    'cough',
+    'nasal congestion',
+    'headache',
+    'fever'
+  ];
+
+  const allSymptoms = [
+    "abdominal cramps", "abdominal distension", "abdominal pain", "abdominal swelling", "abnormal gait", 
+    "abnormal vaginal bleeding", "abscess", "acne", "acoustic trauma", "acute respiratory distress", 
+    "adverse drug reaction", "agitation", "alcohol abuse", "allergic reaction", "altered mental status", 
+    "amenorrhea", "anemia", "angina", "anorexia", "anxiety and nervousness", "aphasia", "arrhythmia", 
+    "ascites", "aspiration", "asthma", "ataxia", "back pain", "bleeding", "blindness", "bloating", 
+    "blurred vision", "bone pain", "bradycardia", "breast lump", "bruising", "burning with urination", 
+    "cachexia", "chest pain", "chest tightness", "chills", "chronic fatigue", "clubbing", 
+    "cognitive decline", "cold intolerance", "confusion", "congestion", "constipation", "cough", 
+    "cyanosis", "dark urine", "dehydration", "delirium", "delusions", "dementia", "depression", 
+    "diarrhea", "difficulty breathing", "difficulty concentrating", "difficulty swallowing", 
+    "diplopia", "dizziness", "dysarthria", "dysmenorrhea", "dyspareunia", "dyspepsia", "dysphagia", 
+    "dysphasia", "dyspnea", "dysuria", "ear discharge", "ear pain", "edema", "emesis", 
+    "emotional lability", "epigastric pain", "epistaxis", "erythema", "excessive sweating", 
+    "exophthalmos", "eye discharge", "eye pain", "facial droop", "facial pain", "fatigue", "fever", 
+    "flank pain", "flatulence", "floaters", "flushing", "frequent urination", "gait disturbance", 
+    "gas", "generalized weakness", "hallucinations", "halitosis", "hamartoma", "headache", 
+    "heart murmur", "heart palpitations", "heartburn", "hematemesis", "hematochezia", 
+    "hematuria", "hemoptysis", "hepatomegaly", "hirsutism", "hoarseness", "hot flashes", 
+    "hyperactivity", "hyperhidrosis", "hyperreflexia", "hypersomnia", "hypertension", 
+    "hypoesthesia", "hypoglycemia", "hypotension", "hypothermia", "hypothyroidism", 
+    "icterus", "impotence", "increased appetite", "increased thirst", "incontinence", 
+    "indigestion", "infections", "infertility", "insomnia", "itching", "jaundice", "joint pain", 
+    "joint stiffness", "knee pain", "laryngitis", "leg cramps", "lethargy", "lightheadedness", 
+    "loss of appetite", "loss of balance", "loss of consciousness", "low back pain", 
+    "low blood pressure", "lower abdominal pain", "lump", "lymphadenopathy", "memory loss", 
+    "menorrhagia", "metallic taste", "mid-epigastric pain", "migraines", "mouth ulcers", 
+    "muscle cramps", "muscle pain", "muscle stiffness", "muscle weakness", "myalgia", 
+    "nail changes", "nausea", "neck pain", "neck stiffness", "nipple discharge", "nocturia", 
+    "numbness", "oral ulcers", "orthopnea", "osteoporosis", "otorrhea", "pain", "palpitations", 
+    "panic attacks", "paralysis", "paresthesia", "pelvic pain", "perianal pain", "photophobia", 
+    "photosensitivity", "poor appetite", "postnasal drip", "productive cough", "prolonged bleeding", 
+    "pruritus", "psychosis", "rash", "rectal bleeding", "restlessness", "rhinorrhea", 
+    "rigors", "runny nose", "saddle anesthesia", "scalp tenderness", "sciatica", "scoliosis", 
+    "seizures", "sexual dysfunction", "shivering", "shortness of breath", "shoulder pain", 
+    "sinus congestion", "sinus pain", "sinus pressure", "skin discoloration", "skin lesion", 
+    "skin rash", "sleep disturbances", "slurred speech", "snoring", "sore throat", "spasms", 
+    "speech difficulty", "splenomegaly", "stiff neck", "stomach pain", "straining", 
+    "stress incontinence", "stridor", "stuffy nose", "sudden vision loss", "sweating", 
+    "swelling", "swollen glands", "syncope", "tenderness", "testicular pain", "throat pain", 
+    "tingling", "tinnitus", "tremor", "trouble sleeping", "trouble urinating", 
+    "trouble walking", "unexplained weight loss", "urinary frequency", "urinary hesitancy", 
+    "urinary incontinence", "urinary retention", "urinary urgency", "urination difficulty", 
+    "urticaria", "vaginal discharge", "vaginal dryness", "vaginal irritation", "vertigo", 
+    "visual disturbances", "vomiting", "weakness", "weight gain", "weight loss", "wheezing"
   ];
 
   const toggleSymptom = (symptom: string) => {
     setSelectedSymptoms(prev =>
-      prev.includes(symptom) ? prev.filter(s => s !== symptom) : [...prev, symptom]
+      prev.includes(symptom)
+        ? prev.filter(s => s !== symptom)
+        : [...prev, symptom]
     );
   };
 
-  const handleNext = () => {
-    if (currentStep < 3) {
-      setCurrentStep(currentStep + 1);
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    const q = value.toLowerCase();
+    if (q) {
+      setFilteredSymptoms(
+        allSymptoms.filter(s =>
+          s.toLowerCase().includes(q) && !selectedSymptoms.includes(s)
+        )
+      );
     } else {
-      performAnalysis();
+      setFilteredSymptoms([]);
     }
   };
 
+  const handleSelectAutocomplete = (symptom: string) => {
+    toggleSymptom(symptom);
+    setSearchQuery('');
+    setFilteredSymptoms([]);
+  };
+
+  const handleNext = () => {
+    if (currentStep < 3) setCurrentStep(prev => prev + 1);
+    else performAnalysis();
+  };
+
   const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
+    if (currentStep > 1) setCurrentStep(prev => prev - 1);
   };
 
   const performAnalysis = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/predict', {
+      const res = await fetch('/api/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ symptoms: selectedSymptoms, duration, severity })
       });
-      if (!response.ok) throw new Error(`HTTP error ${response.status}`);
-      const data: AnalysisResults = await response.json();
+      if (!res.ok) throw new Error(`Error ${res.status}`);
+      const data: AnalysisResults = await res.json();
       setAnalysisResults(data);
       setCurrentStep(4);
-    } catch (error) {
-      console.error('Prediction error:', error);
-      // Optionally show a user-friendly error message here.
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -66,6 +134,8 @@ const SymptomsAnalysis: React.FC = () => {
 
   const resetAnalysis = () => {
     setSelectedSymptoms([]);
+    setSearchQuery('');
+    setFilteredSymptoms([]);
     setDuration('');
     setSeverity('');
     setAnalysisResults(null);
@@ -75,7 +145,6 @@ const SymptomsAnalysis: React.FC = () => {
   return (
     <div className="min-h-screen pt-20 pb-16 bg-gray-50">
       <div className="container-custom max-w-4xl">
-        {/* Header */}
         <motion.div
           className="mb-8 text-center"
           initial={{ opacity: 0, y: -20 }}
@@ -92,27 +161,19 @@ const SymptomsAnalysis: React.FC = () => {
           </p>
         </motion.div>
 
-        {/* Progress Tracker */}
         <div className="mb-8">
           <div className="flex items-center justify-between max-w-2xl mx-auto">
-            {[1, 2, 3, 4].map((step) => (
+            {[1, 2, 3, 4].map(step => (
               <div key={step} className="flex flex-col items-center">
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    currentStep === step
-                      ? 'bg-teal-600 text-white'
-                      : currentStep > step
-                        ? 'bg-teal-200 text-teal-800'
-                        : 'bg-gray-200 text-gray-500'
-                  }`}
-                >
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  currentStep === step ? 'bg-teal-600 text-white'
+                    : currentStep > step ? 'bg-teal-200 text-teal-800'
+                    : 'bg-gray-200 text-gray-500'
+                }`}>
                   {currentStep > step ? <CheckCircle size={20} /> : step}
                 </div>
                 <span className="text-xs mt-2 text-gray-600">
-                  {step === 1 && 'Symptoms'}
-                  {step === 2 && 'Duration'}
-                  {step === 3 && 'Severity'}
-                  {step === 4 && 'Results'}
+                  {step === 1 ? 'Symptoms' : step === 2 ? 'Duration' : step === 3 ? 'Severity' : 'Results'}
                 </span>
               </div>
             ))}
@@ -126,21 +187,19 @@ const SymptomsAnalysis: React.FC = () => {
           </div>
         </div>
 
-        {/* Main Card */}
         <motion.div
           className="bg-white rounded-xl shadow-md p-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          {/* Step 1: Select Symptoms */}
+
           {currentStep === 1 && !loading && (
             <div>
               <h2 className="text-xl font-semibold mb-4">What symptoms are you experiencing?</h2>
-              <p className="text-gray-600 mb-6">
-                Select all that apply. You can add custom symptoms if yours isn't listed.
-              </p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6"> 
+              <p className="text-gray-600 mb-6">Select all that apply or search below.</p>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
                 {commonSymptoms.map(symptom => (
                   <button
                     key={symptom}
@@ -155,18 +214,57 @@ const SymptomsAnalysis: React.FC = () => {
                   </button>
                 ))}
               </div>
+
+              <div className="mb-4 relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  placeholder="Search symptoms..."
+                  className="w-full p-3 rounded-md border border-gray-300"
+                  onChange={e => handleSearchChange(e.target.value)}
+                />
+                {filteredSymptoms.length > 0 && (
+                  <div className="mt-2 max-h-40 overflow-y-auto border rounded-md bg-white z-10 absolute w-full">
+                    {filteredSymptoms.map(symptom => (
+                      <div
+                        key={symptom}
+                        className="p-2 hover:bg-teal-100 cursor-pointer"
+                        onClick={() => handleSelectAutocomplete(symptom)}
+                      >
+                        {symptom}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {selectedSymptoms.length > 0 && (
+                <div className="mb-6 flex flex-wrap gap-2">
+                  {selectedSymptoms.map(s => (
+                    <span
+                      key={s}
+                      className="bg-teal-200 text-teal-800 px-3 py-1 rounded-full flex items-center"
+                    >
+                      {s}
+                      <X
+                        className="h-4 w-4 ml-1 cursor-pointer"
+                        onClick={() => toggleSymptom(s)}
+                      />
+                    </span>
+                  ))}
+                </div>
+              )}
+
               <div className="mt-6 flex justify-between">
-                <button disabled className="px-4 py-2 rounded-md bg-gray-100 text-gray-400">
-                  Back
-                </button>
+                <button disabled className="px-4 py-2 rounded-md bg-gray-100 text-gray-400">Back</button>
                 <button
                   onClick={handleNext}
                   disabled={selectedSymptoms.length === 0}
-                  className={`px-4 py-2 rounded-md flex items-center ${
+                  className={`${
                     selectedSymptoms.length === 0
-                      ? 'bg-teal-600 opacity-50 cursor-not-allowed text-white'
-                      : 'bg-teal-600 hover:bg-teal-700 text-white'
-                  }`}
+                      ? 'bg-teal-600 opacity-50 cursor-not-allowed'
+                      : 'bg-teal-600 hover:bg-teal-700'
+                  } px-4 py-2 rounded-md text-white flex items-center`}
                 >
                   Next <ChevronRight className="ml-1" />
                 </button>
@@ -174,14 +272,17 @@ const SymptomsAnalysis: React.FC = () => {
             </div>
           )}
 
-          {/* Step 2: Duration */}
           {currentStep === 2 && !loading && (
             <div>
-              <h2 className="text-xl font-semibold mb-4">
-                How long have you been experiencing these symptoms?
-              </h2>
+              <h2 className="text-xl font-semibold mb-4">How long have you been experiencing these symptoms?</h2>
               <div className="space-y-3 mb-6">
-                {['Less than 24 hours', '1-3 days', '4-7 days', '1-2 weeks', 'More than 2 weeks'].map(option => (
+                {[
+                  'Less than 24 hours',
+                  '1-3 days',
+                  '4-7 days',
+                  '1-2 weeks',
+                  'More than 2 weeks'
+                ].map(option => (
                   <button
                     key={option}
                     onClick={() => setDuration(option)}
@@ -199,20 +300,13 @@ const SymptomsAnalysis: React.FC = () => {
                 ))}
               </div>
               <div className="flex justify-between">
-                <button
-                  onClick={handleBack}
-                  className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300"
-                >
-                  Back
-                </button>
+                <button onClick={handleBack} className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300">Back</button>
                 <button
                   onClick={handleNext}
                   disabled={!duration}
-                  className={`px-4 py-2 rounded-md flex items-center ${
-                    !duration
-                      ? 'bg-teal-600 opacity-50 cursor-not-allowed text-white'
-                      : 'bg-teal-600 hover:bg-teal-700 text-white'
-                  }`}
+                  className={`${
+                    !duration ? 'bg-teal-600 opacity-50 cursor-not-allowed' : 'bg-teal-600 hover:bg-teal-700'
+                  } px-4 py-2 rounded-md text-white flex items-center`}
                 >
                   Next <ChevronRight className="ml-1" />
                 </button>
@@ -220,7 +314,6 @@ const SymptomsAnalysis: React.FC = () => {
             </div>
           )}
 
-          {/* Step 3: Severity */}
           {currentStep === 3 && !loading && (
             <div>
               <h2 className="text-xl font-semibold mb-4">How severe are your symptoms?</h2>
@@ -229,7 +322,7 @@ const SymptomsAnalysis: React.FC = () => {
                   { label: 'Mild', value: 'Mild' },
                   { label: 'Moderate', value: 'Moderate' },
                   { label: 'Severe', value: 'Severe' },
-                  { label: 'Very Severe', value: 'Very Severe' },
+                  { label: 'Very Severe', value: 'Very Severe' }
                 ].map(opt => (
                   <button
                     key={opt.value}
@@ -247,101 +340,73 @@ const SymptomsAnalysis: React.FC = () => {
                   </button>
                 ))}
               </div>
-              <div className="flex justify-between">
-                <button
-                  onClick={handleBack}
-                  className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300"
-                >
-                  Back
-                </button>
-                <button
-                  onClick={handleNext}
-                  disabled={!severity}
-                  className={`px-4 py-2 rounded-md flex items-center ${
-                    !severity
-                      ? 'bg-teal-600 opacity-50 cursor-not-allowed text-white'
-                      : 'bg-teal-600 hover:bg-teal-700 text-white'
-                  }`}
-                >
-                  Analyze Symptoms <ChevronRight className="ml-1" />
-                </button>
+                              <div className="flex justify-between">
+                  <button
+                    onClick={handleBack}
+                    className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    disabled={!severity}
+                    className={`${
+                      !severity
+                        ? 'bg-teal-600 opacity-50 cursor-not-allowed'
+                        : 'bg-teal-600 hover:bg-teal-700'
+                    } px-4 py-2 rounded-md text-white flex items-center`}
+                  >
+                    Analyze <ChevronRight className="ml-1" />
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Loading State */}
-          {loading && (
-            <div className="flex flex-col items-center justify-center py-8">
-              <Activity className="animate-spin h-12 w-12 text-teal-600 mb-4" />
-              <p className="text-gray-600">Processing your symptoms, please wait...</p>
-            </div>
-          )}
+            {/* Step 4: Results */}
+            {currentStep === 4 && analysisResults && (
+              <div className="text-center">
+                <h2 className="text-2xl font-semibold mb-4">Your Preliminary Result</h2>
+                <div className="bg-teal-100 text-teal-800 p-6 rounded-lg inline-block">
+                  <p className="text-lg font-medium">Predicted Condition:</p>
+                  <p className="text-2xl font-bold mt-2">{analysisResults.predicted_disease}</p>
+                </div>
 
-          {/* Step 4: Results */}
-          {currentStep === 4 && analysisResults && !loading && (
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Your Symptom Analysis Results</h2>
-              <div className="mb-6">
-                <h3 className="text-lg font-medium text-gray-800 mb-2">Possible Condition</h3>
-                <div className="bg-teal-50 p-4 rounded-lg">
-                  <div className="flex justify-between items-center">
-                    <span className="font-semibold text-teal-800">
-                      {analysisResults.condition}
-                    </span>
-                    <div className="bg-white px-3 py-1 rounded-full text-sm font-medium text-teal-800">
-                      {analysisResults.confidence}% match
+                {/* Disclaimer */}
+                <div className="bg-amber-50 p-4 rounded-lg mt-6 mb-6">
+                  <div className="flex items-start">
+                    <AlertCircle className="text-amber-600 mr-2 mt-0.5" />
+                    <div>
+                      <h3 className="text-amber-800 font-medium">Important Disclaimer</h3>
+                      <p className="text-amber-700 text-sm mt-1">
+                        This is for informational purposes only and not a substitute for medical advice.
+                      </p>
                     </div>
                   </div>
-                  <p className="mt-3 text-gray-700">{analysisResults.description}</p>
                 </div>
-              </div>
-              <div className="mb-6">
-                <h3 className="text-lg font-medium text-gray-800 mb-2">Recommendations</h3>
-                <ul className="bg-blue-50 p-4 rounded-lg space-y-2">
-                  {analysisResults.recommendations.map((rec, i) => (
-                    <li key={i} className="flex items-start">
-                      <CheckCircle className="text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
-                      <span>{rec}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="bg-amber-50 p-4 rounded-lg mb-6">
-                <div className="flex items-start">
-                  <AlertCircle className="text-amber-600 mr-2 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <h3 className="text-amber-800 font-medium">Important Disclaimer</h3>
-                    <p className="text-amber-700 text-sm mt-1">
-                      This analysis is based on the symptoms you reported and is meant for informational purposes only.
-                      It is not a medical diagnosis. Please consult a healthcare professional for proper evaluation.
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-between">
-                <button
-                  onClick={resetAnalysis}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md"
-                >
-                  Start New Analysis
-                </button>
-              </div>
-            </div>
-          )}
-        </motion.div>
 
-        {/* Footer Contact */}
-        <div className="mt-8 text-center">
-          <p className="text-gray-600 text-sm">
-            Need immediate assistance?{' '}
-            <a href="#" className="text-teal-600 hover:underline">
-              Contact a healthcare professional
-            </a>
-          </p>
+                {/* Reset Button */}
+                <div className="flex justify-center">
+                  <button
+                    onClick={resetAnalysis}
+                    className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md"
+                  >
+                    Start New Analysis
+                  </button>
+                </div>
+              </div>
+            )}
+
+
+            {loading && (
+              <div className="flex flex-col items-center py-8">
+                <Activity className="animate-spin h-12 w-12 text-teal-600 mb-4" />
+                <p className="text-gray-600">Processing your symptoms, please wait...</p>
+              </div>
+            )}
+          </motion.div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
-export default SymptomsAnalysis;
+  export default SymptomsAnalysis;

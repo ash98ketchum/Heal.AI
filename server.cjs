@@ -34,7 +34,7 @@ app.post('/api/predict', async (req, res) => {
     });
 
     // 3) wait 20s
-    await new Promise(r => setTimeout(r, 20_000));
+    await new Promise(r => setTimeout(r, 1_000));
 
     // 4) read predicted.json
     const predText = await fs.readFile(path.join(baseDir, 'predicted.json'), 'utf-8');

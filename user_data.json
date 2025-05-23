@@ -1,7 +1,9 @@
 {
   "symptoms": [
-    "Cough"
+    "cough",
+    "fever",
+    "nasal congestion"
   ],
-  "duration": "More than 2 weeks",
-  "severity": "Moderate"
+  "duration": "4-7 days",
+  "severity": "Severe"
 }
