@@ -1,9 +1,10 @@
 {
   "symptoms": [
-    "cough",
-    "fever",
-    "nasal congestion"
+    "anxiety and nervousness",
+    "headache",
+    "dizziness",
+    "chest pain"
   ],
-  "duration": "4-7 days",
+  "duration": "1-3 days",
   "severity": "Severe"
 }

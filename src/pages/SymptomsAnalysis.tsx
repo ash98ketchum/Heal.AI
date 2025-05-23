@@ -26,7 +26,9 @@ const SymptomsAnalysis: React.FC = () => {
     'cough',
     'nasal congestion',
     'headache',
-    'fever'
+    'fever',
+    'dizziness',
+    'difficulty breathing',
   ];
 
   const allSymptoms = [
