@@ -1,10 +1,12 @@
 {
   "symptoms": [
     "anxiety and nervousness",
-    "headache",
-    "dizziness",
-    "chest pain"
+    "depression",
+    "shortness of breath",
+    "chest tightness",
+    "fever",
+    "dizziness"
   ],
-  "duration": "1-3 days",
-  "severity": "Severe"
+  "duration": "Less than 24 hours",
+  "severity": "Moderate"
 }
