@@ -1,10 +1,9 @@
 {
   "symptoms": [
-    "depression",
-    "anxiety and nervousness",
-    "chest tightness",
-    "difficulty breathing"
+    "stomach pain",
+    "vomiting",
+    "diarrhea"
   ],
-  "duration": "4-7 days",
+  "duration": "1-3 days",
   "severity": "Moderate"
 }
