@@ -1,3 +1,14 @@
-pandas==2.1.4
+# Core numerical & data handling
 numpy==1.26.4
+pandas==2.1.4
+
+# Machine Learning
+scikit-learn==1.3.2
 joblib==1.3.2
+
+# Visualization (optional but safe)
+matplotlib==3.8.4
+seaborn==0.13.2
+
+# Utilities
+scipy==1.11.4
