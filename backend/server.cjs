@@ -1,8 +1,9 @@
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const { exec } = require("child_process");
 const fs = require("fs/promises");
-const path = require("path");
+
 const axios = require("axios");
 require("dotenv").config();
 
@@ -12,8 +13,12 @@ const app = express();
    MIDDLEWARE
 ================================ */
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "*",
+  origin: [
+    "http://localhost:5173",
+    "https://YOUR_FRONTEND_DOMAIN.vercel.app"
+  ],
 }));
+
 app.use(express.json());
 
 /* ===============================
@@ -117,7 +122,7 @@ app.post('/api/predict', async (req, res) => {
    SERVER START
 ================================ */
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => {
-  console.log(`🚀 Backend running on http://localhost:${PORT}`);
+  console.log(`🚀 Backend running on port ${PORT}`);
 });
+
