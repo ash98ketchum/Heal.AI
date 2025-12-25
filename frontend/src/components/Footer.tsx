@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Activity, Mail, Phone, MapPin, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 

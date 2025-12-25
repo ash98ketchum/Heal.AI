@@ -1,4 +1,3 @@
-import React from 'react';
 import Hero from '../components/Hero';
 import { motion } from 'framer-motion';
 import { Shield, Zap, TrendingUp, Heart } from 'lucide-react';

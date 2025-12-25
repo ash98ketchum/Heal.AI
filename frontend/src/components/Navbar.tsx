@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Menu, X, Activity, FileText, Upload, HelpCircle, MessageSquare } from 'lucide-react'; // Added MessageSquare icon
 

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Activity, ChevronRight, CheckCircle, AlertCircle, X } from 'lucide-react';
+import { API_URL } from "../config";
 
 interface AnalysisResults {
   predicted_disease: string;
@@ -106,10 +107,14 @@ const SymptomsAnalysis: React.FC = () => {
     setFilteredSymptoms([]);
   };
 
-  const handleNext = () => {
-    if (currentStep < 3) setCurrentStep(prev => prev + 1);
-    else performAnalysis();
+  const handleNext = async () => {
+    if (currentStep < 3) {
+      setCurrentStep(prev => prev + 1);
+    } else {
+      await performAnalysis();
+    }
   };
+
 
   const handleBack = () => {
     if (currentStep > 1) setCurrentStep(prev => prev - 1);
@@ -117,22 +122,34 @@ const SymptomsAnalysis: React.FC = () => {
 
   const performAnalysis = async () => {
     setLoading(true);
+    console.log("API URL:", API_URL);
+
+
     try {
-      const res = await fetch('/api/predict', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ symptoms: selectedSymptoms, duration, severity })
+      const res = await fetch(`${API_URL}/api/predict`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          symptoms: selectedSymptoms,
+          duration,
+          severity,
+        }),
       });
-      if (!res.ok) throw new Error(`Error ${res.status}`);
-      const data: AnalysisResults = await res.json();
+
+      if (!res.ok) throw new Error("Request failed");
+
+      const data = await res.json();
       setAnalysisResults(data);
       setCurrentStep(4);
     } catch (err) {
-      console.error(err);
+      console.error("Prediction error:", err);
     } finally {
       setLoading(false);
     }
   };
+
 
   const resetAnalysis = () => {
     setSelectedSymptoms([]);

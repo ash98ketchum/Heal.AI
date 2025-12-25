@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import  { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useDropzone } from 'react-dropzone';
 import { Upload, AlertCircle, CheckCircle, Image, RefreshCw, Info } from 'lucide-react';
